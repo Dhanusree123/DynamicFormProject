@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
   Button,
@@ -53,20 +52,17 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   const [openTypeDialog, setOpenTypeDialog] = useState(false);
   const [openFieldDialog, setOpenFieldDialog] = useState(false);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
-  const [fieldConfig, setFieldConfig] = useState<any>({});
-  const [editFieldIndex, setEditFieldIndex] = useState<number | null>(null);
+  const [fieldConfig, setFieldConfig] = useState<FieldConfig | null>(null);
 
   const openAddDialog = () => {
     setSelectedType(null);
-    setFieldConfig({});
-    setEditFieldIndex(null);
+    setFieldConfig(null);
     setOpenTypeDialog(true);
   };
 
-  const openEditDialog = (field: IFields, index: number) => {
+  const openEditDialog = (field: IFields) => {
     setSelectedType(field.type);
     setFieldConfig(field.fieldConfig);
-    setEditFieldIndex(index);
     setOpenFieldDialog(true);
   };
 
@@ -78,37 +74,35 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   };
 
   const handleAddOption = () => {
-    setFieldConfig({
-      ...fieldConfig,
-      option: [...(fieldConfig.option || []), ""],
-    });
+    if (fieldConfig?.option) {
+      setFieldConfig({
+        ...fieldConfig,
+        option: [...fieldConfig.option, ""],
+      });
+    }
   };
 
   const handleChangeOption = (index: number, value: string) => {
-    const newOptions = [...fieldConfig.option];
-    newOptions[index] = value;
-    setFieldConfig({ ...fieldConfig, option: newOptions });
+    if (fieldConfig?.option) {
+      const newOptions = [...fieldConfig.option];
+      newOptions[index] = value;
+      setFieldConfig({ ...fieldConfig, option: newOptions });
+    }
   };
 
   const handleFieldSubmit = () => {
-    if (!selectedType) return;
+    if (!selectedType || !fieldConfig) return;
     const newField: IFields = {
-      id: editFieldIndex !== null ? fields[editFieldIndex].id : nanoid(),
+      id: nanoid(),
       type: selectedType,
       fieldConfig,
     };
-
-    const updatedFields =
-      editFieldIndex !== null
-        ? fields.map((f, i) => (i === editFieldIndex ? newField : f))
-        : [...fields, newField];
-
+    const updatedFields = [...fields, newField];
     handleFields(updatedFields);
 
     setOpenFieldDialog(false);
     setSelectedType(null);
-    setFieldConfig({});
-    setSelectedType(null);
+    setFieldConfig(null);
   };
 
   const handleDelete = (id: string) => {
@@ -147,12 +141,12 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
             strategy={verticalListSortingStrategy}
           >
             <Stack spacing={2}>
-              {fields.map((field, index) => (
+              {fields.map((field) => (
                 <FieldComponent
                   key={field.id}
                   fields={field}
                   isEdit={isEdit}
-                  onEdit={() => openEditDialog(field, index)}
+                  onEdit={() => openEditDialog(field)}
                   onDelete={() => handleDelete(field.id)}
                 />
               ))}
@@ -206,8 +200,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
         onClose={() => {
           setOpenFieldDialog(false);
           setSelectedType(null);
-          setFieldConfig({});
-          setEditFieldIndex(null);
+          setFieldConfig(null);
         }}
         onConfigChange={setFieldConfig}
         onSubmit={handleFieldSubmit}
