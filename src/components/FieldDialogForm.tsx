@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Box,
   Button,
@@ -12,46 +11,45 @@ import {
   Switch,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { FieldConfig } from "../types/form";
 
 type FieldDialogProps = {
   open: boolean;
   selectedType: string | null;
-  config: any;
+  config: FieldConfig | null;
   onClose: () => void;
-  onConfigChange: (config: any) => void;
+  setConfig: (config: FieldConfig) => void;
   onSubmit: () => void;
   onAddOption: () => void;
   onChangeOption: (index: number, value: string) => void;
 };
 
-const FieldConfigDialog = ({
+const FieldDialogForm = ({
   open,
   selectedType,
   config,
   onClose,
-  onConfigChange,
+  setConfig,
   onSubmit,
   onAddOption,
   onChangeOption,
 }: FieldDialogProps) => {
-  if (!selectedType) return null;
+  if (!selectedType || !config) return null;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
         Customize {selectedType} Field
       </DialogTitle>
-      <Box component="form">
+      <Box>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
         >
           <TextField
             label="Label"
             required
-            value={config.label}
-            onChange={(e) =>
-              onConfigChange({ ...config, label: e.target.value })
-            }
+            value={config?.label}
+            onChange={(e) => setConfig({ ...config, label: e.target.value })}
             fullWidth
           />
 
@@ -62,7 +60,7 @@ const FieldConfigDialog = ({
               required
               value={config.minLength}
               onChange={(e) =>
-                onConfigChange({ ...config, minLength: Number(e.target.value) })
+                setConfig({ ...config, minLength: Number(e.target.value) })
               }
               fullWidth
             />
@@ -75,7 +73,7 @@ const FieldConfigDialog = ({
               required
               value={config.maxLength}
               onChange={(e) =>
-                onConfigChange({ ...config, maxLength: Number(e.target.value) })
+                setConfig({ ...config, maxLength: Number(e.target.value) })
               }
               fullWidth
             />
@@ -83,7 +81,7 @@ const FieldConfigDialog = ({
 
           {"option" in config && (
             <Box>
-              {config.option.map((opt: string, i: number) => (
+              {config?.option?.map((opt: string, i: number) => (
                 <Box
                   key={i}
                   style={{
@@ -111,9 +109,16 @@ const FieldConfigDialog = ({
 
           <FormGroup>
             <FormControlLabel
-              control={<Switch checked={config.checked} />}
+              control={
+                <Switch
+                  checked={config.required ?? false}
+                  onChange={(e) =>
+                    setConfig({ ...config, required: e.target.checked })
+                  }
+                />
+              }
               label="Required"
-            ></FormControlLabel>
+            />
           </FormGroup>
         </DialogContent>
 
@@ -128,4 +133,4 @@ const FieldConfigDialog = ({
   );
 };
 
-export default FieldConfigDialog;
+export default FieldDialogForm;

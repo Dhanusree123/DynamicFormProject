@@ -20,6 +20,10 @@ const DynamicForm = (props: Props) => {
   });
   const [fields, setFields] = useState<IFields[]>([]);
 
+  const handleFields = (updatedFields: IFields[]) => {
+    setFields(updatedFields);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({
@@ -82,7 +86,7 @@ const DynamicForm = (props: Props) => {
 
           <FieldBuilder
             fields={fields}
-            handleFields={setFields}
+            handleFields={handleFields}
             isEdit={isEdit}
           />
 

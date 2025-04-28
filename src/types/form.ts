@@ -7,10 +7,17 @@ export type FieldConfig  = {
     max?: number;
     option?: string[];
 }
-export  type IFields = {
+export type IFields = {
     id: string;
     type: FieldType;
     fieldConfig: FieldConfig;
+    // label: string;
+    // required: boolean;
+    // minLength?: number;
+    // maxLength?: number;
+    // min?: number;
+    // max?: number;
+    // option?: string[];
 };
 
 export type FieldType =

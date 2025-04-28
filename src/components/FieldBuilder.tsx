@@ -53,16 +53,19 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   const [openFieldDialog, setOpenFieldDialog] = useState(false);
   const [selectedType, setSelectedType] = useState<FieldType | null>(null);
   const [fieldConfig, setFieldConfig] = useState<FieldConfig | null>(null);
+  const [editFieldId, setEditFieldId] = useState<string | null>(null);
 
   const openAddDialog = () => {
     setSelectedType(null);
     setFieldConfig(null);
+    setEditFieldId(null);
     setOpenTypeDialog(true);
   };
 
   const openEditDialog = (field: IFields) => {
     setSelectedType(field.type);
     setFieldConfig(field.fieldConfig);
+    setEditFieldId(field.id);
     setOpenFieldDialog(true);
   };
 
@@ -90,19 +93,46 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
     }
   };
 
-  const handleFieldSubmit = () => {
+  const handleAddField = () => {
     if (!selectedType || !fieldConfig) return;
+
     const newField: IFields = {
       id: nanoid(),
       type: selectedType,
       fieldConfig,
     };
+
     const updatedFields = [...fields, newField];
+
     handleFields(updatedFields);
 
     setOpenFieldDialog(false);
     setSelectedType(null);
     setFieldConfig(null);
+  };
+
+  const handleEditField = () => {
+    if (!selectedType || !fieldConfig || !editFieldId) return;
+
+    const updatedFields = fields.map((field) =>
+      field.id === editFieldId
+        ? { ...field, type: selectedType, fieldConfig }
+        : field
+    );
+    handleFields(updatedFields);
+
+    setOpenFieldDialog(false);
+    setSelectedType(null);
+    setFieldConfig(null);
+    setEditFieldId(null);
+  };
+
+  const handleFieldSubmit = () => {
+    if (isEdit) {
+      handleEditField();
+    } else {
+      handleAddField();
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -202,7 +232,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
           setSelectedType(null);
           setFieldConfig(null);
         }}
-        onConfigChange={setFieldConfig}
+        setConfig={setFieldConfig}
         onSubmit={handleFieldSubmit}
         onAddOption={handleAddOption}
         onChangeOption={handleChangeOption}

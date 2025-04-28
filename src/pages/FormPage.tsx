@@ -103,6 +103,7 @@ const FormPage = () => {
           <Box key={id}>
             <FormGroup>
               <FormControlLabel
+                required
                 control={
                   <Switch
                     checked={formValues[id] || false}
@@ -157,6 +158,7 @@ const FormPage = () => {
                     value={opt}
                     control={<Radio />}
                     label={opt}
+                    required={fieldConfig.required}
                   />
                 ))}
               </RadioGroup>
@@ -175,6 +177,7 @@ const FormPage = () => {
                 label={fieldConfig.label}
                 value={formValues[id] || ""}
                 onChange={(e) => handleFieldChange(id, e.target.value)}
+                required={fieldConfig.required}
               >
                 {fieldConfig.option?.map((opt, index) => (
                   <MenuItem key={index} value={opt}>
