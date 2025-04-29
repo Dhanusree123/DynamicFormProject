@@ -173,6 +173,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
             <Stack spacing={2}>
               {fields.map((field) => (
                 <FieldComponent
+                  label={field.fieldConfig?.label}
                   key={field.id}
                   fields={field}
                   isEdit={isEdit}

@@ -20,9 +20,10 @@ type Props = {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   isEdit?: boolean;
+  label: string | undefined;
 };
 
-const FieldComponent = ({ fields, onEdit, onDelete, isEdit }: Props) => {
+const FieldComponent = ({ fields, onEdit, onDelete, isEdit, label }: Props) => {
   const { type, id } = fields;
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -89,7 +90,7 @@ const FieldComponent = ({ fields, onEdit, onDelete, isEdit }: Props) => {
               mr: 2,
             }}
           >
-            {type} Field
+            {type} - {label}
           </Typography>
         </Box>
         <Box>
