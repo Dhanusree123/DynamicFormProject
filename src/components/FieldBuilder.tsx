@@ -112,7 +112,6 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   };
 
   const handleEditField = () => {
-    console.log(editFieldId);
     if (!selectedType || !fieldConfig || !editFieldId) return;
 
     const updatedFields = fields.map((field) =>
