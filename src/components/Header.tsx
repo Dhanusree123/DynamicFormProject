@@ -19,7 +19,7 @@ const Header = () => {
             color="inherit"
             component={Link}
             to="/"
-            sx={{ mr: 1 }}
+            sx={{ mr: 2 }}
             disableRipple
           >
             <HomeIcon />
@@ -30,11 +30,10 @@ const Header = () => {
         </Box>
 
         <Button
-          variant="contained"
           startIcon={<AddIcon />}
           component={Link}
           to="/create-form"
-          sx={{ textTransform: "none" }}
+          sx={{ textTransform: "none", color: "white" }}
           disableRipple
         >
           Create Form

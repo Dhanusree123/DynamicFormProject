@@ -24,6 +24,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { IFields } from "../types/form";
 import CustomContainer from "../components/CustomContainer";
+import { toast } from "sonner";
 
 const FormPage = () => {
   const { path } = useParams();
@@ -215,37 +216,130 @@ const FormPage = () => {
     }
   };
 
+  // const handleSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+
+  //   const newFormValues: Record<string, any> = {};
+  //   let hasError = false;
+
+  //   fields.forEach((field) => {
+  //     const { id, fieldConfig, type } = field;
+  //     const label = fieldConfig.label;
+  //     let value = formValues[id];
+
+  //     if (
+  //       type === "text" ||
+  //       type === "password" ||
+  //       type === "number" ||
+  //       type === "email" ||
+  //       type === "radiogroup"
+  //     ) {
+  //       value = formValues[id] ?? "";
+  //     }
+  //     if (type === "switch") {
+  //       value = formValues[id] ?? false;
+  //     }
+  //     if (type === "checkbox") {
+  //       value =
+  //         fieldConfig.option
+  //           ?.filter((opt) => formValues[`${id}-${opt}`])
+  //           ?.map((opt) => opt) || [];
+  //     }
+
+  //     newFormValues[label] = value;
+  //   });
+  //   console.log(newFormValues);
+  // };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const newFormValues: Record<string, any> = {};
+    let hasError = false; // Flag to track if any validation fails
+
     fields.forEach((field) => {
       const { id, fieldConfig, type } = field;
       const label = fieldConfig.label;
-
       let value = formValues[id];
 
-      if (
-        type === "text" ||
-        type === "password" ||
-        type === "number" ||
-        type === "email" ||
-        type === "radiogroup"
-      ) {
-        value = formValues[id] ?? "";
-      }
-      if (type === "switch") {
-        value = formValues[id] ?? false;
-      }
-      if (type === "checkbox") {
-        value =
-          fieldConfig.option
-            ?.filter((opt) => formValues[`${id}-${opt}`])
-            ?.map((opt) => opt) || [];
+      // Skip validation if field is not required
+      if (fieldConfig.required) {
+        if (
+          type === "text" ||
+          type === "password" ||
+          type === "number" ||
+          type === "email" ||
+          type === "radiogroup"
+        ) {
+          value = formValues[id] ?? "";
+          if (!value) {
+            hasError = true;
+            toast.error(`The ${label} field is required`);
+          }
+        }
+
+        if (type === "switch") {
+          value = formValues[id] ?? false;
+          if (!value) {
+            hasError = true;
+            toast.error(`The ${label} field is required`);
+          }
+        }
+
+        if (type === "checkbox") {
+          // Check if any checkbox is checked, based on required
+          const selectedOptions =
+            fieldConfig.option?.filter((opt) => formValues[`${id}-${opt}`]) ||
+            [];
+          if (selectedOptions.length === 0) {
+            hasError = true;
+            toast.error(`At least one option for ${label} must be selected`);
+          }
+          value = selectedOptions;
+        }
+
+        if (type === "chip") {
+          // Check if any chip is selected, based on required
+          if ((formValues[id] || []).length === 0) {
+            hasError = true;
+            toast.error(`At least one option for ${label} must be selected`);
+          }
+          value = formValues[id] || [];
+        }
+      } else {
+        // If the field is not required, we can safely set the value
+        if (
+          type === "text" ||
+          type === "password" ||
+          type === "number" ||
+          type === "email" ||
+          type === "radiogroup"
+        ) {
+          value = formValues[id] ?? "";
+        }
+        if (type === "switch") {
+          value = formValues[id] ?? false;
+        }
+        if (type === "checkbox") {
+          value =
+            fieldConfig.option
+              ?.filter((opt) => formValues[`${id}-${opt}`])
+              ?.map((opt) => opt) || [];
+        }
+        if (type === "chip") {
+          value = formValues[id] || [];
+        }
       }
 
       newFormValues[label] = value;
     });
+
+    if (hasError) {
+      return; // Stop form submission if there is an error
+    }
+
+    // If no validation errors, you can proceed with form submission (e.g., send the data to the server)
+    toast.success("Form submitted successfully");
     console.log(newFormValues);
   };
 

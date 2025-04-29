@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Box,
   Table,
@@ -10,22 +8,51 @@ import {
   Paper,
   Typography,
   IconButton,
+  DialogContent,
+  DialogActions,
+  DialogTitle,
+  Dialog,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomContainer from "../components/CustomContainer";
-import { Edit } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import { IForm } from "../types/form";
+import { toast } from "sonner";
 
 const HomePage = () => {
   const [forms, setForms] = useState<IForm[]>([]);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [formId, setFormId] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
+  const handleOpenDeleteDialog = (id: string) => {
+    setFormId(id);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleDelete = () => {
+    if (formId) {
+      const storedForms = JSON.parse(localStorage.getItem("forms") || "{}");
+      delete storedForms[formId];
+      localStorage.setItem("forms", JSON.stringify(storedForms));
+      setForms(Object.values(storedForms));
+      setOpenDeleteDialog(false);
+      setFormId(null);
+      toast.success("Form deleted successfully");
+    }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setFormId(null);
+  };
+
   useEffect(() => {
     const storedForms = JSON.parse(localStorage.getItem("forms") || "{}");
-    const formArray = Object.values(storedForms) as IForm[];
-    setForms(formArray);
+    setForms(Object.values(storedForms) as IForm[]);
   }, []);
 
   return (
@@ -48,7 +75,7 @@ const HomePage = () => {
                 <TableCell>
                   <strong>Path</strong>
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ textAlign: "center" }}>
                   <strong>Actions</strong>
                 </TableCell>
               </TableRow>
@@ -66,14 +93,32 @@ const HomePage = () => {
                   <TableRow key={form.path}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{form.formtitle}</TableCell>
-                    <TableCell onClick={() => navigate(`/${form.path}`)}>
+                    <TableCell
+                      sx={{
+                        "&:hover": {
+                          color: "blue",
+                          textDecoration: "underline",
+                          cursor: "pointer",
+                        },
+                      }}
+                      onClick={() => navigate(`/${form.path}`)}
+                    >
                       {form.path}
                     </TableCell>
-                    <TableCell>
+                    <TableCell
+                      sx={{
+                        textAlign: "center",
+                      }}
+                    >
                       <IconButton
                         onClick={() => navigate(`/form/${form.id}/edit`)}
                       >
                         <Edit />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleOpenDeleteDialog(form.id)}
+                      >
+                        <Delete />
                       </IconButton>
                     </TableCell>
                   </TableRow>
@@ -83,6 +128,21 @@ const HomePage = () => {
           </Table>
         </Paper>
       </Box>
+
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
+        <DialogTitle>Delete Form</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this form ?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </CustomContainer>
   );
 };

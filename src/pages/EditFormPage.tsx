@@ -3,6 +3,7 @@ import CustomContainer from "../components/CustomContainer";
 import DynamicForm from "../components/DynamicForm";
 import { IForm } from "../types/form";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const EditFormPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +20,7 @@ const EditFormPage = () => {
     };
 
     localStorage.setItem("forms", JSON.stringify(updatedForms));
+    toast.success("Form updated successfully");
   };
 
   useEffect(() => {

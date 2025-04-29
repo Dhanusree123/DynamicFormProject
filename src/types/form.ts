@@ -1,23 +1,16 @@
-export type FieldConfig  = {
-    label: string;
-    required: boolean;
-    minLength?: number;
-    maxLength?: number;
-    min?: number;
-    max?: number;
-    option?: string[];
-}
+export type FieldConfig = {
+  label: string;
+  required: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  option?: string[];
+};
 export type IFields = {
-    id: string;
-    type: FieldType;
-    fieldConfig: FieldConfig;
-    // label: string;
-    // required: boolean;
-    // minLength?: number;
-    // maxLength?: number;
-    // min?: number;
-    // max?: number;
-    // option?: string[];
+  id: string;
+  type: FieldType;
+  fieldConfig: FieldConfig;
 };
 
 export type FieldType =
@@ -30,13 +23,11 @@ export type FieldType =
   | "chip"
   | "checkbox"
   | "radiogroup"
-  | "select"
-  ;
-
+  | "select";
 
 export type IForm = {
-    id: string;
-    formtitle: string;
-    path: string;
-    fields: IFields[];
+  id: string;
+  formtitle: string;
+  path: string;
+  fields: IFields[];
 };

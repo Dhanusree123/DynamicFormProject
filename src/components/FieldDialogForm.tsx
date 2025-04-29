@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { FieldConfig } from "../types/form";
+import { toast } from "sonner";
 
 type FieldDialogProps = {
   open: boolean;
@@ -36,12 +37,28 @@ const FieldDialogForm = ({
 }: FieldDialogProps) => {
   if (!selectedType || !config) return null;
 
+  const handleSubmit = () => {
+    if (!config?.label) {
+      toast.warning("Label is required");
+      return;
+    }
+    if (
+      (selectedType === "checkbox" ||
+        selectedType === "radiogroup" ||
+        selectedType === "select") &&
+      (!config.option || config.option.length < 2)
+    ) {
+      toast.warning("At least two options must be selected");
+      return false;
+    }
+    onSubmit();
+  };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
         Customize {selectedType} Field
       </DialogTitle>
-      <Box>
+      <Box component="form">
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
         >
@@ -57,7 +74,6 @@ const FieldDialogForm = ({
             <TextField
               label="Min Length"
               type="number"
-              required
               value={config.minLength}
               onChange={(e) =>
                 setConfig({ ...config, minLength: Number(e.target.value) })
@@ -70,10 +86,33 @@ const FieldDialogForm = ({
             <TextField
               label="Max Length"
               type="number"
-              required
               value={config.maxLength}
               onChange={(e) =>
                 setConfig({ ...config, maxLength: Number(e.target.value) })
+              }
+              fullWidth
+            />
+          )}
+
+          {"min" in config && (
+            <TextField
+              label="Min"
+              type="number"
+              value={config.min}
+              onChange={(e) =>
+                setConfig({ ...config, min: Number(e.target.value) })
+              }
+              fullWidth
+            />
+          )}
+
+          {"max" in config && (
+            <TextField
+              label="Max"
+              type="number"
+              value={config.max}
+              onChange={(e) =>
+                setConfig({ ...config, max: Number(e.target.value) })
               }
               fullWidth
             />
@@ -124,7 +163,7 @@ const FieldDialogForm = ({
 
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit} variant="contained">
+          <Button onClick={handleSubmit} variant="contained">
             Submit
           </Button>
         </DialogActions>

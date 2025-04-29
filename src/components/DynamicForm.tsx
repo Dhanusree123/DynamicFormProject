@@ -9,16 +9,17 @@ type Props = {
   form?: IForm;
   handleFormSubmit: (data: IForm) => void;
 };
+
 const DynamicForm = (props: Props) => {
   const { isEdit = false, form, handleFormSubmit } = props;
 
+  const [fields, setFields] = useState<IFields[]>([]);
   const [formValues, setFormValues] = useState<IForm>({
     id: nanoid(),
     formtitle: "",
     path: "",
     fields: [],
   });
-  const [fields, setFields] = useState<IFields[]>([]);
 
   const handleFields = (updatedFields: IFields[]) => {
     setFields(updatedFields);
@@ -90,7 +91,13 @@ const DynamicForm = (props: Props) => {
             isEdit={isEdit}
           />
 
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            disabled={fields.length == 0}
+            sx={{ mt: 2 }}
+          >
             {isEdit ? "Update" : "Submit"}
           </Button>
         </Stack>

@@ -34,7 +34,7 @@ const FieldComponent = ({ fields, onEdit, onDelete, isEdit }: Props) => {
     setOpenDeleteDialog(false);
   };
 
-  const handleConfirmDelete = () => {
+  const handleDelete = () => {
     onDelete(id);
     setOpenDeleteDialog(false);
   };
@@ -116,7 +116,7 @@ const FieldComponent = ({ fields, onEdit, onDelete, isEdit }: Props) => {
           <Button onClick={handleCloseDeleteDialog} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="error">
+          <Button onClick={handleDelete} color="error">
             Delete
           </Button>
         </DialogActions>

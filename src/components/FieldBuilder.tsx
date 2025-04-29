@@ -112,6 +112,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   };
 
   const handleEditField = () => {
+    console.log(editFieldId);
     if (!selectedType || !fieldConfig || !editFieldId) return;
 
     const updatedFields = fields.map((field) =>
@@ -128,13 +129,13 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
   };
 
   const handleFieldSubmit = () => {
-    if (isEdit) {
+    if (!selectedType || !fieldConfig) return;
+    if (editFieldId) {
       handleEditField();
     } else {
       handleAddField();
     }
   };
-
   const handleDelete = (id: string) => {
     const newFields = fields.filter((field) => field.id !== id);
     handleFields(newFields);
@@ -231,6 +232,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
           setOpenFieldDialog(false);
           setSelectedType(null);
           setFieldConfig(null);
+          setEditFieldId(null);
         }}
         setConfig={setFieldConfig}
         onSubmit={handleFieldSubmit}
