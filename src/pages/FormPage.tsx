@@ -22,7 +22,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { IFields } from "../types/form";
+import { IFields, IForm } from "../types/form";
 import CustomContainer from "../components/CustomContainer";
 import { toast } from "sonner";
 
@@ -34,8 +34,8 @@ const FormPage = () => {
   const today = dayjs();
 
   useEffect(() => {
-    const forms = JSON.parse(localStorage.getItem("forms") || "{}");
-    const formsLists = Object.values(forms) as any[];
+    const storedForms = JSON.parse(localStorage.getItem("forms") || "{}");
+    const formsLists = Object.values(storedForms) as IForm[];
     const reqForm = formsLists.find((f) => f.path === path);
     if (reqForm) {
       setFields(reqForm.fields);
@@ -63,14 +63,15 @@ const FormPage = () => {
             <TextField
               label={fieldConfig.label}
               type={type}
-              required={!!fieldConfig.required}
               fullWidth
               margin="normal"
-              inputProps={{
-                minLength: fieldConfig.minLength,
-                maxLength: fieldConfig.maxLength,
-                min: fieldConfig.min,
-                max: fieldConfig.max,
+              slotProps={{
+                htmlInput: {
+                  minLength: fieldConfig.minLength,
+                  maxLength: fieldConfig.maxLength,
+                  min: fieldConfig.min,
+                  max: fieldConfig.max,
+                },
               }}
               value={formValues[id] || ""}
               onChange={(e) => handleFieldChange(id, e.target.value)}
@@ -104,7 +105,6 @@ const FormPage = () => {
           <Box key={id}>
             <FormGroup>
               <FormControlLabel
-                required
                 control={
                   <Switch
                     checked={formValues[id] || false}
@@ -159,7 +159,6 @@ const FormPage = () => {
                     value={opt}
                     control={<Radio />}
                     label={opt}
-                    required={fieldConfig.required}
                   />
                 ))}
               </RadioGroup>
@@ -178,7 +177,6 @@ const FormPage = () => {
                 label={fieldConfig.label}
                 value={formValues[id] || ""}
                 onChange={(e) => handleFieldChange(id, e.target.value)}
-                required={fieldConfig.required}
               >
                 {fieldConfig.option?.map((opt, index) => (
                   <MenuItem key={index} value={opt}>
@@ -215,79 +213,70 @@ const FormPage = () => {
         return null;
     }
   };
-
-  // const handleSubmit = (e: React.FormEvent) => {
-  //   e.preventDefault();
-
-  //   const newFormValues: Record<string, any> = {};
-  //   let hasError = false;
-
-  //   fields.forEach((field) => {
-  //     const { id, fieldConfig, type } = field;
-  //     const label = fieldConfig.label;
-  //     let value = formValues[id];
-
-  //     if (
-  //       type === "text" ||
-  //       type === "password" ||
-  //       type === "number" ||
-  //       type === "email" ||
-  //       type === "radiogroup"
-  //     ) {
-  //       value = formValues[id] ?? "";
-  //     }
-  //     if (type === "switch") {
-  //       value = formValues[id] ?? false;
-  //     }
-  //     if (type === "checkbox") {
-  //       value =
-  //         fieldConfig.option
-  //           ?.filter((opt) => formValues[`${id}-${opt}`])
-  //           ?.map((opt) => opt) || [];
-  //     }
-
-  //     newFormValues[label] = value;
-  //   });
-  //   console.log(newFormValues);
-  // };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const newFormValues: Record<string, any> = {};
-    let hasError = false; // Flag to track if any validation fails
+    let hasError = false;
 
     fields.forEach((field) => {
       const { id, fieldConfig, type } = field;
       const label = fieldConfig.label;
       let value = formValues[id];
 
-      // Skip validation if field is not required
       if (fieldConfig.required) {
         if (
-          type === "text" ||
-          type === "password" ||
-          type === "number" ||
-          type === "email" ||
-          type === "radiogroup"
+          (type === "text" ||
+            type === "password" ||
+            type === "number" ||
+            type === "email" ||
+            type === "switch" ||
+            type === "radiogroup" ||
+            type === "select" ||
+            type === "date") &&
+          value === undefined
         ) {
-          value = formValues[id] ?? "";
-          if (!value) {
-            hasError = true;
-            toast.error(`The ${label} field is required`);
+          hasError = true;
+          toast.error(`The ${label} field is required`);
+        }
+
+        if (type === "number") {
+          const min = fieldConfig?.min;
+          const max = fieldConfig?.max;
+          if (value !== undefined) {
+            if (
+              (min !== undefined && value < min) ||
+              (max !== undefined && value > max)
+            ) {
+              hasError = true;
+              toast.error(
+                `The ${label} value must be between ${min} and ${max}`
+              );
+            }
           }
         }
 
-        if (type === "switch") {
-          value = formValues[id] ?? false;
-          if (!value) {
+        if (
+          (type === "text" || type === "password" || type === "email") &&
+          value !== undefined
+        ) {
+          const minLength = fieldConfig?.minLength;
+          const maxLength = fieldConfig?.maxLength;
+
+          if (minLength !== undefined && value.length < minLength) {
             hasError = true;
-            toast.error(`The ${label} field is required`);
+            toast.error(
+              `The ${label} must be at least ${minLength} characters long`
+            );
+          }
+
+          if (maxLength !== undefined && value.length > maxLength) {
+            hasError = true;
+            toast.error(`The ${label} cannot exceed ${maxLength} characters`);
           }
         }
 
         if (type === "checkbox") {
-          // Check if any checkbox is checked, based on required
           const selectedOptions =
             fieldConfig.option?.filter((opt) => formValues[`${id}-${opt}`]) ||
             [];
@@ -298,27 +287,22 @@ const FormPage = () => {
           value = selectedOptions;
         }
 
-        if (type === "chip") {
-          // Check if any chip is selected, based on required
-          if ((formValues[id] || []).length === 0) {
-            hasError = true;
-            toast.error(`At least one option for ${label} must be selected`);
-          }
-          value = formValues[id] || [];
+        if (type === "chip" && (value === undefined || value.length === 0)) {
+          hasError = true;
+          toast.error(`At least one option for ${label} must be selected`);
         }
       } else {
-        // If the field is not required, we can safely set the value
         if (
-          type === "text" ||
-          type === "password" ||
-          type === "number" ||
-          type === "email" ||
-          type === "radiogroup"
+          (type === "text" ||
+            type === "password" ||
+            type === "number" ||
+            type === "email") &&
+          (value === undefined || value === null)
         ) {
-          value = formValues[id] ?? "";
+          value = "";
         }
-        if (type === "switch") {
-          value = formValues[id] ?? false;
+        if (type === "switch" && value === undefined) {
+          value = false;
         }
         if (type === "checkbox") {
           value =
@@ -335,10 +319,9 @@ const FormPage = () => {
     });
 
     if (hasError) {
-      return; // Stop form submission if there is an error
+      return;
     }
 
-    // If no validation errors, you can proceed with form submission (e.g., send the data to the server)
     toast.success("Form submitted successfully");
     console.log(newFormValues);
   };
@@ -354,7 +337,7 @@ const FormPage = () => {
         >
           {title}
         </Typography>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           {fields.map((field) => renderField(field))}
 
           {fields.length > 0 && (

@@ -135,6 +135,7 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
       handleAddField();
     }
   };
+
   const handleDelete = (id: string) => {
     const newFields = fields.filter((field) => field.id !== id);
     handleFields(newFields);
@@ -205,9 +206,6 @@ const FieldBuilder = ({ fields, handleFields, isEdit }: Props) => {
                 variant="body1"
                 onClick={() => {
                   handleSelectType(type as FieldType);
-                  setFieldConfig({ ...defaultFieldValues[type as FieldType] });
-                  setOpenTypeDialog(false);
-                  setOpenFieldDialog(true);
                 }}
                 sx={{
                   m: 2,

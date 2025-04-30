@@ -23,7 +23,7 @@ type Props = {
   label: string | undefined;
 };
 
-const FieldComponent = ({ fields, onEdit, onDelete, isEdit, label }: Props) => {
+const FieldComponent = ({ fields, onEdit, onDelete, label }: Props) => {
   const { type, id } = fields;
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
@@ -94,11 +94,9 @@ const FieldComponent = ({ fields, onEdit, onDelete, isEdit, label }: Props) => {
           </Typography>
         </Box>
         <Box>
-          {isEdit && (
-            <IconButton onClick={() => onEdit(id)}>
-              <Edit fontSize="small" />
-            </IconButton>
-          )}
+          <IconButton onClick={() => onEdit(id)}>
+            <Edit fontSize="small" />
+          </IconButton>
 
           <IconButton onClick={handleDeleteClick}>
             <Delete fontSize="small" />

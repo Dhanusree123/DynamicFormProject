@@ -9,7 +9,7 @@ import { Toaster } from "sonner";
 const App = () => {
   return (
     <>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-right" closeButton />
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />

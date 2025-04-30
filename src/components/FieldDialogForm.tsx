@@ -53,6 +53,14 @@ const FieldDialogForm = ({
     }
     onSubmit();
   };
+
+  const TEXTFIELDCONFIG = [
+    { key: "minLength", label: "Min Length" },
+    { key: "maxLength", label: "Max Length" },
+    { key: "min", label: "Min" },
+    { key: "max", label: "Max" },
+  ];
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
@@ -70,53 +78,30 @@ const FieldDialogForm = ({
             fullWidth
           />
 
-          {"minLength" in config && (
-            <TextField
-              label="Min Length"
-              type="number"
-              value={config.minLength}
-              onChange={(e) =>
-                setConfig({ ...config, minLength: Number(e.target.value) })
-              }
-              fullWidth
-            />
-          )}
-
-          {"maxLength" in config && (
-            <TextField
-              label="Max Length"
-              type="number"
-              value={config.maxLength}
-              onChange={(e) =>
-                setConfig({ ...config, maxLength: Number(e.target.value) })
-              }
-              fullWidth
-            />
-          )}
-
-          {"min" in config && (
-            <TextField
-              label="Min"
-              type="number"
-              value={config.min}
-              onChange={(e) =>
-                setConfig({ ...config, min: Number(e.target.value) })
-              }
-              fullWidth
-            />
-          )}
-
-          {"max" in config && (
-            <TextField
-              label="Max"
-              type="number"
-              value={config.max}
-              onChange={(e) =>
-                setConfig({ ...config, max: Number(e.target.value) })
-              }
-              fullWidth
-            />
-          )}
+          {TEXTFIELDCONFIG.map(({ key, label }) => {
+            switch (key) {
+              case "minLength":
+              case "maxLength":
+              case "min":
+              case "max":
+                if (config[key] !== undefined) {
+                  return (
+                    <TextField
+                      key={key}
+                      label={label}
+                      type="number"
+                      value={config[key]}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          [key]: Number(e.target.value),
+                        })
+                      }
+                    />
+                  );
+                }
+            }
+          })}
 
           {"option" in config && (
             <Box>
